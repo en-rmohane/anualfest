@@ -69,6 +69,44 @@ def save_submissions(data):
 def index():
     return render_template("submit.html")
 
+@app.route("/get_upload_url", methods=["POST"])
+def get_upload_url():
+    if not USE_FIREBASE:
+        return jsonify({"success": False, "message": "Firebase not configured"}), 400
+    try:
+        data = request.json
+        filename = data.get("filename", "file.mp3")
+        content_type = data.get("content_type", "audio/mpeg")
+        
+        # Configure CORS for PUT requests from our domain
+        bucket = storage.bucket()
+        try:
+            bucket.cors = [{
+                "origin": ["*"],
+                "method": ["GET", "PUT", "POST", "OPTIONS"],
+                "responseHeader": ["Content-Type", "Origin", "Accept", "Authorization"],
+                "maxAgeSeconds": 3600
+            }]
+            bucket.patch()
+        except:
+            pass # ignore if it fails or lacks permissions
+
+        ext = filename.rsplit(".", 1)[1].lower() if "." in filename else "mp3"
+        music_filename = f"{uuid.uuid4().hex}.{ext}"
+        blob = bucket.blob(f"uploads/{music_filename}")
+        
+        from datetime import timedelta
+        url = blob.generate_signed_url(
+            version="v4",
+            expiration=timedelta(minutes=30),
+            method="PUT",
+            content_type=content_type
+        )
+        return jsonify({"success": True, "url": url, "music_filename": music_filename})
+    except Exception as e:
+        print(f"Error generating upload url: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 @app.route("/submit", methods=["POST"])
 def submit():
     name = request.form.get("name", "").strip()
@@ -83,27 +121,40 @@ def submit():
     if not all([name, roll, performance_type, performance_name, category]):
         return jsonify({"success": False, "message": "Please fill all required fields!"}), 400
 
-    music_file = request.files.get("music_file")
     music_filename = None
     music_url = None
-    if music_file and music_file.filename:
-        if allowed_file(music_file.filename):
-            ext = music_file.filename.rsplit(".", 1)[1].lower()
-            music_filename = f"{uuid.uuid4().hex}.{ext}"
-            if USE_FIREBASE:
-                try:
-                    bucket = storage.bucket()
-                    blob = bucket.blob(f"uploads/{music_filename}")
-                    blob.upload_from_file(music_file, content_type=music_file.content_type)
-                    blob.make_public()
-                    music_url = blob.public_url
-                except Exception as e:
-                    print(f"Firebase Storage upload failed: {e}")
-                    return jsonify({"success": False, "message": "File upload to cloud failed!"}), 500
+    
+    # Check if a client-side uploaded filename was sent
+    client_music_filename = request.form.get("uploaded_music_filename")
+    if client_music_filename and USE_FIREBASE:
+        music_filename = client_music_filename
+        try:
+            bucket = storage.bucket()
+            blob = bucket.blob(f"uploads/{music_filename}")
+            blob.make_public()
+            music_url = blob.public_url
+        except Exception as e:
+            print(f"Failed to make blob public: {e}")
+    else:
+        music_file = request.files.get("music_file")
+        if music_file and music_file.filename:
+            if allowed_file(music_file.filename):
+                ext = music_file.filename.rsplit(".", 1)[1].lower()
+                music_filename = f"{uuid.uuid4().hex}.{ext}"
+                if USE_FIREBASE:
+                    try:
+                        bucket = storage.bucket()
+                        blob = bucket.blob(f"uploads/{music_filename}")
+                        blob.upload_from_file(music_file, content_type=music_file.content_type)
+                        blob.make_public()
+                        music_url = blob.public_url
+                    except Exception as e:
+                        print(f"Firebase Storage upload failed: {e}")
+                        return jsonify({"success": False, "message": "File upload to cloud failed!"}), 500
+                else:
+                    music_file.save(os.path.join(UPLOAD_FOLDER, music_filename))
             else:
-                music_file.save(os.path.join(UPLOAD_FOLDER, music_filename))
-        else:
-            return jsonify({"success": False, "message": "Only MP3, WAV, OGG, M4A files are allowed!"}), 400
+                return jsonify({"success": False, "message": "Only MP3, WAV, OGG, M4A files are allowed!"}), 400
 
     submissions = load_submissions()
     entry = {

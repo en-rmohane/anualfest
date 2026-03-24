@@ -550,7 +550,7 @@
         <input type="file" name="music_file" id="musicFile" accept=".mp3,.wav,.ogg,.m4a,.flac" onchange="fileChosen(this)">
         <div class="upload-icon">🎵</div>
         <div class="upload-text">Drop Your Music File Here</div>
-        <div class="upload-sub">MP3, WAV, OGG, M4A &bull; Max 4.5MB</div>
+        <div class="upload-sub">MP3, WAV, OGG, M4A &bull; Max 20MB</div>
       </div>
       <div class="file-chosen" id="fileChosen">
         <span>✅</span>
@@ -608,9 +608,9 @@
   function fileChosen(input) {
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      // Vercel Serverless Function payload limit is 4.5MB
-      if (file.size > 4.5 * 1024 * 1024) {
-        showToast('⚠️ File size must be under 4.5MB to upload successfully.');
+      // Updated to 20MB since we upload directly to Firebase Storage bypassing Vercel limits
+      if (file.size > 20 * 1024 * 1024) {
+        showToast('⚠️ File size must be under 20MB.');
         document.getElementById('musicFile').value = '';
         document.getElementById('fileChosen').classList.remove('show');
         return;
@@ -645,18 +645,55 @@
     ldr.style.display = 'block';
     btn.disabled = true;
 
-    const formData = new FormData(e.target);
-
     try {
+      const fileInput = document.getElementById('musicFile');
+      const file = fileInput.files ? fileInput.files[0] : null;
+      let formData = new FormData(e.target);
+
+      if (file) {
+        txt.textContent = 'CONNECTING...';
+        txt.style.display = 'block';
+        
+        // Step 1: Get Upload URL
+        const resUrl = await fetch('/get_upload_url', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({filename: file.name, content_type: file.type || 'audio/mpeg'})
+        });
+        const urlData = await resUrl.json();
+        
+        if (urlData.success && urlData.url) {
+          // Step 2: Upload to Cloud directly using PUT
+          txt.textContent = 'UPLOADING MUSIC...';
+          const uploadRes = await fetch(urlData.url, {
+            method: 'PUT',
+            body: file,
+            headers: {'Content-Type': file.type || 'audio/mpeg'}
+          });
+          
+          if (!uploadRes.ok) throw new Error('Cloud upload failed');
+          
+          // Remove actual file from FormData so it doesn't hit Vercel Limits
+          formData.delete('music_file');
+          // Add the reference filename
+          formData.append('uploaded_music_filename', urlData.music_filename);
+        } else if (urlData.message !== "Firebase not configured") {
+          throw new Error(urlData.message || 'Failed to init upload');
+        }
+      }
+
+      txt.textContent = 'SAVING DETAILS...';
+      txt.style.display = 'block';
       const res = await fetch('/submit', { method: 'POST', body: formData });
       const data = await res.json();
       if (data.success) {
         document.getElementById('successOverlay').classList.add('show');
+        txt.textContent = '🚀 REGISTER PERFORMANCE';
       } else {
         showToast('⚠️ ' + data.message);
       }
     } catch(err) {
-      showToast('❌ Network error. Please try again.');
+      showToast('❌ ' + (err.message || 'Network error. Please try again.'));
     } finally {
       txt.style.display = 'block';
       ldr.style.display = 'none';
