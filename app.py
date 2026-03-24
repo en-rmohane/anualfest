@@ -83,13 +83,13 @@ def get_upload_url():
         try:
             bucket.cors = [{
                 "origin": ["*"],
-                "method": ["GET", "PUT", "POST", "OPTIONS"],
-                "responseHeader": ["Content-Type", "Origin", "Accept", "Authorization"],
+                "method": ["GET", "PUT", "POST", "OPTIONS", "DELETE"],
+                "responseHeader": ["*"],
                 "maxAgeSeconds": 3600
             }]
             bucket.patch()
-        except:
-            pass # ignore if it fails or lacks permissions
+        except Exception as e:
+            print("CORS Patch Error:", e)
 
         ext = filename.rsplit(".", 1)[1].lower() if "." in filename else "mp3"
         music_filename = f"{uuid.uuid4().hex}.{ext}"
