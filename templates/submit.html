@@ -550,7 +550,7 @@
         <input type="file" name="music_file" id="musicFile" accept=".mp3,.wav,.ogg,.m4a,.flac" onchange="fileChosen(this)">
         <div class="upload-icon">🎵</div>
         <div class="upload-text">Drop Your Music File Here</div>
-        <div class="upload-sub">MP3, WAV, OGG, M4A • Max 20MB</div>
+        <div class="upload-sub">MP3, WAV, OGG, M4A &bull; Max 4.5MB</div>
       </div>
       <div class="file-chosen" id="fileChosen">
         <span>✅</span>
@@ -607,7 +607,15 @@
   // File chosen
   function fileChosen(input) {
     if (input.files && input.files[0]) {
-      document.getElementById('fileName').textContent = input.files[0].name;
+      const file = input.files[0];
+      // Vercel Serverless Function payload limit is 4.5MB
+      if (file.size > 4.5 * 1024 * 1024) {
+        showToast('⚠️ File size must be under 4.5MB to upload successfully.');
+        document.getElementById('musicFile').value = '';
+        document.getElementById('fileChosen').classList.remove('show');
+        return;
+      }
+      document.getElementById('fileName').textContent = file.name;
       document.getElementById('fileChosen').classList.add('show');
     }
   }
