@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annual Fest 2025 – Performance Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #13131f;
+    --border: #2a2a3e;
+    --accent1: #ff3cac;
+    --accent2: #784ba0;
+    --accent3: #2b86c5;
+    --gold: #ffd700;
+    --text: #e8e8ff;
+    --muted: #7070a0;
+    --success: #00e5a0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(255,60,172,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(43,134,197,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(120,75,160,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Floating particles */
+  .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Header */
+  header {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 48px 20px 32px;
+  }
+
+  .fest-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 6px 20px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 10vw, 90px);
+    letter-spacing: 4px;
+    line-height: 1;
+    background: linear-gradient(135deg, #ffffff 0%, var(--gold) 40%, var(--accent1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  header p {
+    font-size: 15px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Glowing divider */
+  .divider {
+    width: 200px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent1), var(--accent3), transparent);
+    margin: 20px auto;
+    border-radius: 2px;
+  }
+
+  /* Form container */
+  .container {
+    position: relative; z-index: 10;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(255,60,172,0.08), 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
+  }
+
+  /* Section headers */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* Form fields */
+  .field-group { display: grid; gap: 16px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  label span.req { color: var(--accent1); margin-left: 2px; }
+
+  input, select, textarea {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s;
+    outline: none;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent1);
+    background: rgba(255,60,172,0.06);
+    box-shadow: 0 0 0 3px rgba(255,60,172,0.1);
+  }
+
+  select option { background: #1a1a2e; }
+
+  textarea { resize: vertical; min-height: 90px; }
+
+  /* Type selector */
+  .type-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .type-btn {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .type-btn input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+  }
+
+  .type-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 12px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.03);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .type-btn input:checked + .type-card {
+    border-color: var(--accent1);
+    background: rgba(255,60,172,0.1);
+    box-shadow: 0 0 20px rgba(255,60,172,0.2);
+  }
+
+  .type-card .icon { font-size: 32px; }
+  .type-card .label-text { font-size: 13px; font-weight: 600; color: var(--text); }
+  .type-card .sub { font-size: 11px; color: var(--muted); }
+
+  /* Category pills */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .cat-btn { position: relative; cursor: pointer; }
+  .cat-btn input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+
+  .cat-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+
+  .cat-btn input:checked + .cat-pill {
+    border-color: var(--accent3);
+    background: rgba(43,134,197,0.15);
+    color: var(--text);
+    box-shadow: 0 0 12px rgba(43,134,197,0.2);
+  }
+
+  /* Music upload */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent2);
+    background: rgba(120,75,160,0.1);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+    padding: 0; border: none; background: none;
+  }
+
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-text { font-size: 14px; font-weight: 500; color: var(--text); }
+  .upload-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .file-chosen {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.3);
+    border-radius: 10px;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+
+  .file-chosen.show { display: flex; }
+
+  /* Submit button */
+  .submit-btn {
+    width: 100%;
+    padding: 18px;
+    margin-top: 32px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2), var(--accent3));
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255,60,172,0.4);
+  }
+
+  .submit-btn:active { transform: translateY(0); }
+
+  .submit-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .submit-btn:hover::after { opacity: 1; }
+
+  /* Success overlay */
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+  }
+
+  .success-overlay.show { display: flex; }
+
+  .success-box {
+    background: var(--card);
+    border: 1px solid rgba(0,229,160,0.4);
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 420px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .success-icon { font-size: 64px; margin-bottom: 16px; animation: bounce 1s ease infinite; }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .success-box h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--success);
+    margin-bottom: 8px;
+  }
+
+  .success-box p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  .close-btn {
+    margin-top: 24px;
+    padding: 12px 32px;
+    background: rgba(0,229,160,0.15);
+    border: 1px solid var(--success);
+    border-radius: 10px;
+    color: var(--success);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .close-btn:hover { background: rgba(0,229,160,0.25); }
+
+  /* Error toast */
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(255,60,60,0.9);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 200;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Loader */
+  .loader {
+    display: none;
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 580px) {
+    .field-row { grid-template-columns: 1fr; }
+    .type-selector { grid-template-columns: 1fr 1fr; }
+    .category-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-card { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Header -->
+<header>
+  <div class="fest-badge">🎭 Annual Function 2025</div>
+  <h1>STAGE FEST</h1>
+  <p>Performance Registration Portal</p>
+  <div class="divider"></div>
+</header>
+
+<!-- Form -->
+<div class="container">
+  <div class="form-card">
+    <form id="submitForm">
+
+      <!-- Student Info -->
+      <div class="section-label">👤 Student Details</div>
+      <div class="field-group">
+        <div class="field-row">
+          <div class="field">
+            <label>Your Name <span class="req">*</span></label>
+            <input type="text" name="name" placeholder="Full Name" required>
+          </div>
+          <div class="field">
+            <label>Roll Number <span class="req">*</span></label>
+            <input type="text" name="roll" placeholder="e.g. CS-2023-045" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Type -->
+      <div class="section-label">🎬 Performance Type</div>
+      <div class="type-selector">
+        <label class="type-btn">
+          <input type="radio" name="performance_type" value="Solo" required>
+          <div class="type-card">
+            <div class="icon">🎤</div>
+            <div class="label-text">Solo</div>
+            <div class="sub">Perform solo</div>
+          </div>
+        </label>
+        <label class="type-btn">
+          <input type="radio" name="performance_type" value="Group">
+          <div class="type-card">
+            <div class="icon">👯</div>
+            <div class="label-text">Group</div>
+            <div class="sub">With your team</div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Performance Details -->
+      <div class="section-label">🎵 Performance Details</div>
+      <div class="field-group">
+        <div class="field-row">
+          <div class="field">
+            <label>Performance / Act Name <span class="req">*</span></label>
+            <input type="text" name="performance_name" placeholder="e.g. Dil Dhadakne Do – Dance Cover" required>
+          </div>
+          <div class="field">
+            <label>Performance Number</label>
+            <input type="number" name="performance_number" min="1" placeholder="e.g. 1">
+          </div>
+        </div>
+        <div class="field">
+          <label>Group Members (if applicable)</label>
+          <input type="text" name="group_members" placeholder="e.g. Riya, Rahul, Priya (all names)">
+        </div>
+      </div>
+
+      <!-- Category -->
+      <div class="section-label">🏷️ Category</div>
+      <div class="category-grid">
+        <label class="cat-btn">
+          <input type="radio" name="category" value="Classical Dance" required>
+          <div class="cat-pill">💃 Classical Dance</div>
+        </label>
+        <label class="cat-btn">
+          <input type="radio" name="category" value="Western Dance">
+          <div class="cat-pill">🕺 Western Dance</div>
+        </label>
+        <label class="cat-btn">
+          <input type="radio" name="category" value="Bollywood Dance">
+          <div class="cat-pill">🎬 Bollywood</div>
+        </label>
+        <label class="cat-btn">
+          <input type="radio" name="category" value="Singing">
+          <div class="cat-pill">🎤 Singing</div>
+        </label>
+        <label class="cat-btn">
+          <input type="radio" name="category" value="Skit / Drama">
+          <div class="cat-pill">🎭 Skit/Drama</div>
+        </label>
+        <label class="cat-btn">
+          <input type="radio" name="category" value="Other">
+          <div class="cat-pill">✨ Other</div>
+        </label>
+      </div>
+
+      <!-- Music Upload -->
+      <div class="section-label">🎶 Music / Song File</div>
+      <div class="upload-zone" id="dropZone">
+        <input type="file" name="music_file" id="musicFile" accept=".mp3,.wav,.ogg,.m4a,.flac" onchange="fileChosen(this)">
+        <div class="upload-icon">🎵</div>
+        <div class="upload-text">Drop Your Music File Here</div>
+        <div class="upload-sub">MP3, WAV, OGG, M4A • Max 20MB</div>
+      </div>
+      <div class="file-chosen" id="fileChosen">
+        <span>✅</span>
+        <span id="fileName">file.mp3</span>
+      </div>
+
+      <!-- Description -->
+      <div class="section-label">📝 Short Description</div>
+      <div class="field">
+        <label>Describe your performance (optional)</label>
+        <textarea name="description" placeholder="e.g. This is a Bollywood medley featuring a mashup of 5 songs..."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span id="btnText">🚀 REGISTER PERFORMANCE</span>
+        <div class="loader" id="loader"></div>
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<!-- Success Overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon">🎉</div>
+    <h2>REGISTERED!</h2>
+    <p>Your performance has been successfully registered!<br>The entry will appear on the admin dashboard.<br><br>All the best for the performance! 🌟</p>
+    <button class="close-btn" onclick="closeSuccess()">OKAY ✓</button>
+  </div>
+</div>
+
+<!-- Error Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // Particles
+  const container = document.getElementById('particles');
+  const colors = ['#ff3cac','#784ba0','#2b86c5','#ffd700','#00e5a0'];
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${Math.random()*15+10}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    container.appendChild(p);
+  }
+
+  // File chosen
+  function fileChosen(input) {
+    if (input.files && input.files[0]) {
+      document.getElementById('fileName').textContent = input.files[0].name;
+      document.getElementById('fileChosen').classList.add('show');
+    }
+  }
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  function closeSuccess() {
+    document.getElementById('successOverlay').classList.remove('show');
+    document.getElementById('submitForm').reset();
+    document.getElementById('fileChosen').classList.remove('show');
+  }
+
+  // Form Submit
+  document.getElementById('submitForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const txt = document.getElementById('btnText');
+    const ldr = document.getElementById('loader');
+
+    txt.style.display = 'none';
+    ldr.style.display = 'block';
+    btn.disabled = true;
+
+    const formData = new FormData(e.target);
+
+    try {
+      const res = await fetch('/submit', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('successOverlay').classList.add('show');
+      } else {
+        showToast('⚠️ ' + data.message);
+      }
+    } catch(err) {
+      showToast('❌ Network error. Please try again.');
+    } finally {
+      txt.style.display = 'block';
+      ldr.style.display = 'none';
+      btn.disabled = false;
+    }
+  });
+
+  // Drag & drop
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      document.getElementById('musicFile').files = e.dataTransfer.files;
+      fileChosen({ files: [file] });
+    }
+  });
+</script>
+</body>
+</html>

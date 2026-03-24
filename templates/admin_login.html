@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login – Annual Fest</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #0a0a0f;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(255,60,172,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 70%, rgba(43,134,197,0.15) 0%, transparent 50%);
+    pointer-events:none;
+  }
+  .login-wrap {
+    position:relative; z-index:10;
+    width: 100%; max-width: 380px;
+    padding: 20px;
+  }
+  .lock-icon {
+    text-align:center;
+    font-size: 56px;
+    margin-bottom: 8px;
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse {
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.08);}
+  }
+  h1 {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:42px;
+    letter-spacing:4px;
+    text-align:center;
+    background:linear-gradient(135deg,#fff,#ffd700,#ff3cac);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    margin-bottom:4px;
+  }
+  .sub { text-align:center; font-size:12px; color:#7070a0; letter-spacing:2px; text-transform:uppercase; margin-bottom:32px; }
+  .card {
+    background:#13131f;
+    border:1px solid #2a2a3e;
+    border-radius:20px;
+    padding:36px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before {
+    content:'';
+    position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,#ff3cac,#784ba0,#2b86c5);
+  }
+  label { font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#7070a0; }
+  input[type=password] {
+    width:100%; margin-top:8px; margin-bottom:20px;
+    padding:14px 18px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid #2a2a3e;
+    border-radius:12px;
+    color:#e8e8ff;
+    font-family:'Poppins',sans-serif;
+    font-size:15px;
+    outline:none;
+    transition:all 0.3s;
+    letter-spacing:4px;
+  }
+  input[type=password]:focus {
+    border-color:#ff3cac;
+    background:rgba(255,60,172,0.06);
+    box-shadow:0 0 0 3px rgba(255,60,172,0.1);
+  }
+  .error-msg {
+    background:rgba(255,60,60,0.1);
+    border:1px solid rgba(255,60,60,0.3);
+    border-radius:10px;
+    padding:10px 14px;
+    font-size:13px;
+    color:#ff6060;
+    margin-bottom:16px;
+  }
+  button {
+    width:100%;
+    padding:16px;
+    background:linear-gradient(135deg,#ff3cac,#784ba0,#2b86c5);
+    border:none; border-radius:12px;
+    color:white;
+    font-family:'Bebas Neue',sans-serif;
+    font-size:18px;
+    letter-spacing:3px;
+    cursor:pointer;
+    transition:all 0.3s;
+  }
+  button:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,60,172,0.4); }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="lock-icon">🔐</div>
+  <h1>ADMIN</h1>
+  <div class="sub">Annual Fest Control Panel</div>
+  <div class="card">
+    {% if error %}
+    <div class="error-msg">⚠️ {{ error }}</div>
+    {% endif %}
+    <form method="POST">
+      <label>Admin Password</label>
+      <input type="password" name="password" placeholder="••••••••" autofocus>
+      <button type="submit">ENTER DASHBOARD →</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

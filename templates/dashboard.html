@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard – Annual Fest 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0f; --card:#13131f; --card2:#1a1a2e;
+    --border:#2a2a3e; --accent1:#ff3cac; --accent2:#784ba0;
+    --accent3:#2b86c5; --gold:#ffd700;
+    --text:#e8e8ff; --muted:#7070a0; --success:#00e5a0;
+    --warn:#ffbb33; --danger:#ff5555;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);font-family:'Poppins',sans-serif;color:var(--text);min-height:100vh;}
+
+  /* Top Nav */
+  .topnav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(10,10,15,0.95);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(12px);
+    padding:0 32px;
+    display:flex;align-items:center;justify-content:space-between;
+    height:64px;
+  }
+  .nav-title{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:24px;letter-spacing:3px;
+    background:linear-gradient(135deg,#fff,var(--gold),var(--accent1));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .nav-actions{display:flex;gap:12px;align-items:center;}
+  .nav-badge{
+    background:rgba(255,60,172,0.15);
+    border:1px solid rgba(255,60,172,0.3);
+    border-radius:20px;
+    padding:4px 14px;
+    font-size:12px;color:var(--accent1);font-weight:600;
+  }
+  .logout-btn{
+    padding:8px 20px;
+    background:rgba(255,85,85,0.15);
+    border:1px solid rgba(255,85,85,0.3);
+    border-radius:10px;
+    color:#ff8888;font-size:13px;font-weight:600;
+    cursor:pointer;text-decoration:none;transition:all 0.3s;
+  }
+  .logout-btn:hover{background:rgba(255,85,85,0.3);}
+
+  /* Main content */
+  .main{padding:32px;max-width:1300px;margin:0 auto;}
+
+  /* Stats row */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:32px;}
+  .stat-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;padding:20px;
+    text-align:center;
+    transition:transform 0.3s;
+  }
+  .stat-card:hover{transform:translateY(-3px);}
+  .stat-num{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:40px;letter-spacing:2px;
+  }
+  .stat-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+  .stat-total .stat-num{color:var(--gold);}
+  .stat-solo .stat-num{color:var(--accent1);}
+  .stat-group .stat-num{color:var(--accent3);}
+  .stat-pending .stat-num{color:var(--warn);}
+  .stat-approved .stat-num{color:var(--success);}
+
+  /* Filter & Search */
+  .toolbar{
+    display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;align-items:center;
+  }
+  .search-box{
+    flex:1;min-width:200px;
+    position:relative;
+  }
+  .search-box input{
+    width:100%;
+    padding:12px 18px 12px 44px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    color:var(--text);
+    font-family:'Poppins',sans-serif;
+    font-size:14px;outline:none;transition:all 0.3s;
+  }
+  .search-box input:focus{border-color:var(--accent3);background:rgba(43,134,197,0.06);}
+  .search-box::before{
+    content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;
+  }
+  .filter-btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .filter-btn{
+    padding:8px 16px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    color:var(--muted);
+    font-size:12px;font-weight:600;
+    cursor:pointer;transition:all 0.3s;letter-spacing:1px;
+    white-space:nowrap;
+  }
+  .filter-btn.active{border-color:var(--accent1);color:var(--accent1);background:rgba(255,60,172,0.1);}
+
+  /* Table */
+  .table-wrap{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  }
+  table{width:100%;border-collapse:collapse;}
+  thead{background:rgba(255,255,255,0.03);}
+  thead th{
+    padding:14px 16px;
+    font-size:11px;font-weight:700;
+    letter-spacing:2px;text-transform:uppercase;
+    color:var(--muted);text-align:left;
+    border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  tbody tr{
+    border-bottom:1px solid rgba(42,42,62,0.6);
+    transition:background 0.2s;
+  }
+  tbody tr:hover{background:rgba(255,255,255,0.025);}
+  tbody tr:last-child{border-bottom:none;}
+  td{padding:14px 16px;font-size:13px;vertical-align:middle;}
+
+  /* Badges */
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 12px;border-radius:20px;
+    font-size:11px;font-weight:700;letter-spacing:0.5px;
+    white-space:nowrap;
+  }
+  .badge-solo{background:rgba(255,60,172,0.15);color:var(--accent1);border:1px solid rgba(255,60,172,0.3);}
+  .badge-group{background:rgba(43,134,197,0.15);color:var(--accent3);border:1px solid rgba(43,134,197,0.3);}
+  .badge-pending{background:rgba(255,187,51,0.15);color:var(--warn);border:1px solid rgba(255,187,51,0.3);}
+  .badge-approved{background:rgba(0,229,160,0.15);color:var(--success);border:1px solid rgba(0,229,160,0.3);}
+  .badge-rejected{background:rgba(255,85,85,0.15);color:var(--danger);border:1px solid rgba(255,85,85,0.3);}
+
+  .category-tag{
+    font-size:11px;color:var(--muted);margin-top:3px;
+  }
+
+  /* Audio player */
+  .audio-mini{
+    display:flex;align-items:center;gap:8px;
+  }
+  .play-btn{
+    width:32px;height:32px;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    border:none;border-radius:50%;
+    cursor:pointer;font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;transition:transform 0.2s;
+  }
+  .play-btn:hover{transform:scale(1.1);}
+  .no-audio{color:var(--muted);font-size:12px;}
+
+  /* Status select */
+  .status-select{
+    padding:6px 12px;
+    background:var(--card2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    font-family:'Poppins',sans-serif;
+    font-size:12px;cursor:pointer;outline:none;
+  }
+
+  /* Actions */
+  .action-btns{display:flex;gap:8px;}
+  .del-btn{
+    width:30px;height:30px;
+    background:rgba(255,85,85,0.1);
+    border:1px solid rgba(255,85,85,0.3);
+    border-radius:8px;
+    cursor:pointer;font-size:13px;
+    display:flex;align-items:center;justify-content:center;
+    transition:all 0.3s;
+  }
+  .del-btn:hover{background:rgba(255,85,85,0.3);}
+
+  /* Empty state */
+  .empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+  .empty-state .icon{font-size:48px;margin-bottom:12px;}
+  .empty-state p{font-size:15px;}
+
+  /* Audio modal */
+  .audio-modal{
+    display:none;position:fixed;inset:0;
+    background:rgba(0,0,0,0.85);
+    z-index:100;align-items:center;justify-content:center;
+    backdrop-filter:blur(8px);
+  }
+  .audio-modal.show{display:flex;}
+  .audio-box{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;padding:32px;
+    text-align:center;max-width:340px;width:90%;
+    position:relative;
+  }
+  .audio-box h3{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:8px;}
+  .audio-box p{font-size:13px;color:var(--muted);margin-bottom:20px;}
+  audio{width:100%;border-radius:8px;margin-bottom:12px;}
+  .close-audio{
+    position:absolute;top:12px;right:12px;
+    width:28px;height:28px;background:var(--border);
+    border:none;border-radius:50%;cursor:pointer;
+    font-size:14px;color:var(--muted);
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  /* Delete confirm */
+  .confirm-modal{
+    display:none;position:fixed;inset:0;
+    background:rgba(0,0,0,0.85);
+    z-index:200;align-items:center;justify-content:center;
+    backdrop-filter:blur(8px);
+  }
+  .confirm-modal.show{display:flex;}
+  .confirm-box{
+    background:var(--card);border:1px solid rgba(255,85,85,0.4);
+    border-radius:20px;padding:32px;text-align:center;
+    max-width:360px;width:90%;
+  }
+  .confirm-box h3{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--danger);margin-bottom:8px;}
+  .confirm-box p{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+  .confirm-actions{display:flex;gap:12px;justify-content:center;}
+  .cancel-btn{
+    padding:10px 24px;background:var(--border);border:none;
+    border-radius:10px;color:var(--muted);cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+  }
+  .confirm-del-btn{
+    padding:10px 24px;background:rgba(255,85,85,0.2);
+    border:1px solid var(--danger);border-radius:10px;
+    color:var(--danger);cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+  }
+
+  /* Toast */
+  .toast{
+    position:fixed;bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(100px);
+    background:rgba(0,229,160,0.9);color:#000;
+    padding:12px 24px;border-radius:12px;
+    font-size:13px;font-weight:600;z-index:300;
+    transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:900px){
+    .main{padding:16px;}
+    .topnav{padding:0 16px;}
+    td:nth-child(4),th:nth-child(4),
+    td:nth-child(5),th:nth-child(5){display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="topnav">
+  <div class="nav-title">🎭 FEST ADMIN</div>
+  <div class="nav-actions">
+    <span class="nav-badge">{{ submissions|length }} Entries</span>
+    <a href="/admin/logout" class="logout-btn">Logout →</a>
+  </div>
+</nav>
+
+<div class="main">
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card stat-total">
+      <div class="stat-num" id="statTotal">{{ submissions|length }}</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-card stat-solo">
+      <div class="stat-num" id="statSolo">{{ submissions|selectattr('performance_type','eq','Solo')|list|length }}</div>
+      <div class="stat-label">Solo</div>
+    </div>
+    <div class="stat-card stat-group">
+      <div class="stat-num" id="statGroup">{{ submissions|selectattr('performance_type','eq','Group')|list|length }}</div>
+      <div class="stat-label">Group</div>
+    </div>
+    <div class="stat-card stat-pending">
+      <div class="stat-num" id="statPending">{{ submissions|selectattr('status','eq','Pending')|list|length }}</div>
+      <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card stat-approved">
+      <div class="stat-num" id="statApproved">{{ submissions|selectattr('status','eq','Approved')|list|length }}</div>
+      <div class="stat-label">Approved</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search student or performance..." oninput="filterRows()">
+    </div>
+    <div class="filter-btns">
+      <button class="filter-btn active" onclick="filterType('all',this)">All</button>
+      <button class="filter-btn" onclick="filterType('Solo',this)">🎤 Solo</button>
+      <button class="filter-btn" onclick="filterType('Group',this)">👯 Group</button>
+      <button class="filter-btn" onclick="filterType('Pending',this)">⏳ Pending</button>
+      <button class="filter-btn" onclick="filterType('Approved',this)">✅ Approved</button>
+    </div>
+    <div style="margin-left:auto;">
+      <button onclick="openEditModal()" style="padding:10px 16px;background:var(--accent1);border:none;border-radius:10px;color:white;font-weight:600;font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;">➕ Add New</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Student</th>
+          <th>Performance</th>
+          <th>Category</th>
+          <th>Music</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        {% if submissions %}
+          {% for s in submissions|reverse %}
+          <tr data-type="{{ s.performance_type }}" data-status="{{ s.status }}" data-search="{{ (s.name ~ ' ' ~ s.roll ~ ' ' ~ s.performance_name ~ ' ' ~ s.category)|lower }}">
+            <td style="color:var(--muted);font-size:12px;">{{ loop.index }}</td>
+            <td>
+              <div style="font-weight:600;">{{ s.name }}</div>
+              <div style="font-size:11px;color:var(--muted);">{{ s.roll }}</div>
+              {% if s.group_members %}
+              <div style="font-size:11px;color:var(--accent3);margin-top:2px;">👥 {{ s.group_members }}</div>
+              {% endif %}
+            </td>
+            <td>
+              <div style="font-weight:600;">
+                {% if s.performance_number %}<span style="color:var(--accent1);">#{{ s.performance_number }}</span> - {% endif %}{{ s.performance_name }}
+              </div>
+              {% if s.description %}
+              <div style="font-size:11px;color:var(--muted);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ s.description }}</div>
+              {% endif %}
+            </td>
+            <td><span style="font-size:12px;color:var(--muted);">{{ s.category }}</span></td>
+            <td>
+              {% if s.music_file %}
+              <div class="audio-mini">
+                <button class="play-btn" onclick="playAudio('/uploads/{{ s.music_file }}','{{ s.performance_name }}','{{ s.name }}')">▶</button>
+                <span style="font-size:11px;color:var(--success);">Audio ✓</span>
+              </div>
+              {% else %}
+              <span class="no-audio">— No file</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {{ 'badge-solo' if s.performance_type == 'Solo' else 'badge-group' }}">
+                {{ '🎤' if s.performance_type == 'Solo' else '👯' }} {{ s.performance_type }}
+              </span>
+            </td>
+            <td>
+              <select class="status-select" onchange="updateStatus('{{ s.id }}', this.value, this)">
+                <option value="Pending" {{ 'selected' if s.status == 'Pending' }}>⏳ Pending</option>
+                <option value="Approved" {{ 'selected' if s.status == 'Approved' }}>✅ Approved</option>
+                <option value="Rejected" {{ 'selected' if s.status == 'Rejected' }}>❌ Rejected</option>
+              </select>
+            </td>
+            <td style="font-size:11px;color:var(--muted);white-space:nowrap;">{{ s.submitted_at }}</td>
+            <td>
+              <div class="action-btns">
+                <button class="del-btn" style="background:rgba(43,134,197,0.1); border-color:var(--accent3); color:var(--accent3);" data-entry="{{ s|tojson|forceescape }}" onclick="openEditModal(this.dataset.entry)" title="Edit">✏️</button>
+                <button class="del-btn" onclick="confirmDelete('{{ s.id }}','{{ s.performance_name|replace("'", "\\'") }}')" title="Delete">🗑️</button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="9">
+            <div class="empty-state">
+              <div class="icon">🎭</div>
+              <p>No submissions yet.<br>Share the registration link with students!</p>
+            </div>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Link share box -->
+  <div style="margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <span style="font-size:20px;">🔗</span>
+    <div style="flex:1;">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Student Registration Link</div>
+      <code id="regLink" style="font-size:14px;color:var(--accent3);">http://YOUR_IP:5000/</code>
+    </div>
+    <button onclick="copyLink()" style="padding:10px 20px;background:rgba(43,134,197,0.2);border:1px solid var(--accent3);border-radius:10px;color:var(--accent3);font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.background='rgba(43,134,197,0.35)'" onmouseout="this.style.background='rgba(43,134,197,0.2)'">
+      📋 Copy Link
+    </button>
+  </div>
+</div>
+
+<!-- Audio Modal -->
+<div class="audio-modal" id="audioModal">
+  <div class="audio-box">
+    <button class="close-audio" onclick="closeAudio()">✕</button>
+    <div style="font-size:40px;margin-bottom:8px;">🎵</div>
+    <h3 id="audioTitle">Performance Name</h3>
+    <p id="audioSub">by Student</p>
+    <audio id="audioPlayer" controls></audio>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="confirm-modal" id="confirmModal">
+  <div class="confirm-box">
+    <h3>DELETE?</h3>
+    <p>Do you want to delete the entry for "<span id="delName"></span>"?<br>This action cannot be undone!</p>
+    <div class="confirm-actions">
+      <button class="cancel-btn" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-del-btn" id="confirmDelBtn">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="confirm-modal" id="editModal">
+  <div class="confirm-box" style="max-width:500px; text-align:left;">
+    <h3 id="editModalTitle" style="color:var(--accent1);">Add/Edit Entry</h3>
+    <form id="editForm" onsubmit="saveEntry(event)">
+      <input type="hidden" id="editId">
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div><label style="font-size:11px;color:var(--muted);">Name</label><input type="text" id="editName" required style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Poppins';"></div>
+        <div><label style="font-size:11px;color:var(--muted);">Roll</label><input type="text" id="editRoll" required style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Poppins';"></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div><label style="font-size:11px;color:var(--muted);">Perf. Name</label><input type="text" id="editPerfName" required style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Poppins';"></div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);">Perf. Num.</label>
+          <input type="number" id="editPerfNum" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Poppins';">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div>
+          <label style="font-size:11px;color:var(--muted);">Type</label>
+          <select id="editType" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Poppins';">
+            <option value="Solo">Solo</option>
+            <option value="Group">Group</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);">Category</label>
+          <input type="text" id="editCategory" required style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Poppins';">
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:11px;color:var(--muted);">Group Members</label>
+        <input type="text" id="editGroup" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Poppins';">
+      </div>
+      
+      <div style="margin-bottom:20px;">
+        <label style="font-size:11px;color:var(--muted);">Description</label>
+        <textarea id="editDesc" rows="2" style="width:100%;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'Poppins';resize:none;"></textarea>
+      </div>
+
+      <div class="confirm-actions">
+        <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="confirm-del-btn" style="background:var(--accent1);border-color:var(--accent1);color:#fff;">Save Data</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentFilter = 'all';
+
+  function filterRows() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#tableBody tr[data-type]');
+    rows.forEach(row => {
+      const matchSearch = row.dataset.search.includes(q);
+      const matchType = currentFilter === 'all' ||
+        row.dataset.type === currentFilter ||
+        row.dataset.status === currentFilter;
+      row.style.display = (matchSearch && matchType) ? '' : 'none';
+    });
+  }
+
+  function filterType(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterRows();
+  }
+
+  function showToast(msg, success=true) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = success ? 'rgba(0,229,160,0.9)' : 'rgba(255,85,85,0.9)';
+    t.style.color = success ? '#000' : '#fff';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  async function updateStatus(id, status, select) {
+    const res = await fetch('/admin/update_status', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id, status})
+    });
+    const data = await res.json();
+    if (data.success) {
+      const row = select.closest('tr');
+      row.dataset.status = status;
+      showToast('✅ Status updated: ' + status);
+    } else {
+      showToast('❌ Error updating', false);
+    }
+  }
+
+  let pendingDeleteId = null;
+  function confirmDelete(id, name) {
+    pendingDeleteId = id;
+    document.getElementById('delName').textContent = name;
+    document.getElementById('confirmModal').classList.add('show');
+    document.getElementById('confirmDelBtn').onclick = () => doDelete(id);
+  }
+  function closeConfirm() {
+    document.getElementById('confirmModal').classList.remove('show');
+    pendingDeleteId = null;
+  }
+
+  async function doDelete(id) {
+    const res = await fetch('/admin/delete', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({id})
+    });
+    const data = await res.json();
+    closeConfirm();
+    if (data.success) {
+      const rows = document.querySelectorAll('#tableBody tr');
+      rows.forEach(row => {
+        if (row.querySelector(`[onclick*="${id}"]`)) row.remove();
+      });
+      showToast('🗑️ Entry deleted!');
+      updateStats();
+    } else {
+      showToast('❌ Delete failed', false);
+    }
+  }
+
+  function openEditModal(entryData = null) {
+    if (entryData) {
+      if(typeof entryData === 'string') entryData = JSON.parse(entryData);
+      document.getElementById('editModalTitle').textContent = 'Edit Entry';
+      document.getElementById('editId').value = entryData.id || '';
+      document.getElementById('editName').value = entryData.name || '';
+      document.getElementById('editRoll').value = entryData.roll || '';
+      document.getElementById('editPerfName').value = entryData.performance_name || '';
+      document.getElementById('editPerfNum').value = entryData.performance_number || '';
+      document.getElementById('editType').value = entryData.performance_type || 'Solo';
+      document.getElementById('editCategory').value = entryData.category || '';
+      document.getElementById('editGroup').value = entryData.group_members || '';
+      document.getElementById('editDesc').value = entryData.description || '';
+    } else {
+      document.getElementById('editModalTitle').textContent = 'Add New Entry';
+      document.getElementById('editForm').reset();
+      document.getElementById('editId').value = '';
+    }
+    document.getElementById('editModal').classList.add('show');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').classList.remove('show');
+  }
+
+  async function saveEntry(e) {
+    e.preventDefault();
+    const data = {
+      id: document.getElementById('editId').value,
+      name: document.getElementById('editName').value,
+      roll: document.getElementById('editRoll').value,
+      performance_name: document.getElementById('editPerfName').value,
+      performance_number: document.getElementById('editPerfNum').value,
+      performance_type: document.getElementById('editType').value,
+      category: document.getElementById('editCategory').value,
+      group_members: document.getElementById('editGroup').value,
+      description: document.getElementById('editDesc').value,
+    };
+    
+    // show loader or simply disable button
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    
+    try {
+      const res = await fetch('/admin/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if(result.success) {
+        showToast('✅ Saved successfully!');
+        setTimeout(() => location.reload(), 800);
+      } else {
+        showToast('❌ Error saving data', false);
+      }
+    } catch(err) {
+      showToast('❌ Network error', false);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function updateStats() {
+    const rows = [...document.querySelectorAll('#tableBody tr[data-type]')];
+    document.getElementById('statTotal').textContent = rows.length;
+    document.getElementById('statSolo').textContent = rows.filter(r=>r.dataset.type==='Solo').length;
+    document.getElementById('statGroup').textContent = rows.filter(r=>r.dataset.type==='Group').length;
+    document.getElementById('statPending').textContent = rows.filter(r=>r.dataset.status==='Pending').length;
+    document.getElementById('statApproved').textContent = rows.filter(r=>r.dataset.status==='Approved').length;
+  }
+
+  function playAudio(url, title, student) {
+    document.getElementById('audioTitle').textContent = title;
+    document.getElementById('audioSub').textContent = 'by ' + student;
+    document.getElementById('audioPlayer').src = url;
+    document.getElementById('audioPlayer').play();
+    document.getElementById('audioModal').classList.add('show');
+  }
+
+  function closeAudio() {
+    document.getElementById('audioPlayer').pause();
+    document.getElementById('audioModal').classList.remove('show');
+  }
+
+  function copyLink() {
+    const link = window.location.origin + '/';
+    navigator.clipboard.writeText(link).then(() => showToast('🔗 Link copied!'));
+    document.getElementById('regLink').textContent = link;
+  }
+
+  // Set reg link on load
+  document.getElementById('regLink').textContent = window.location.origin + '/';
+</script>
+</body>
+</html>
