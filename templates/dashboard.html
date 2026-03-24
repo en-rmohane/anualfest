@@ -360,7 +360,9 @@
             </td>
             <td><span style="font-size:12px;color:var(--muted);">{{ s.category }}</span></td>
             <td>
-              {% if s.music_file %}
+              {% if s.music_url %}
+              <audio controls controlsList="nodownload" src="{{ s.music_url }}" style="height:35px; width:200px; outline:none; border-radius:18px;"></audio>
+              {% elif s.music_file %}
               <audio controls controlsList="nodownload" src="/uploads/{{ s.music_file }}" style="height:35px; width:200px; outline:none; border-radius:18px;"></audio>
               {% else %}
               <span class="no-audio">— No file</span>

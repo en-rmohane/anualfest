@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory, session
 import json, os, uuid
+import firebase_admin
+from firebase_admin import credentials, db, storage
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
@@ -14,6 +16,24 @@ else:
     UPLOAD_FOLDER = os.path.join("static", "uploads")
     DATA_FILE = "submissions.json"
 
+# Initialize Firebase if credentials exist
+firebase_creds = os.environ.get("FIREBASE_CREDENTIALS")
+firebase_db_url = os.environ.get("FIREBASE_DATABASE_URL")
+firebase_storage_bucket = os.environ.get("FIREBASE_STORAGE_BUCKET")
+
+USE_FIREBASE = False
+if firebase_creds and firebase_db_url and firebase_storage_bucket:
+    try:
+        cred_dict = json.loads(firebase_creds)
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': firebase_db_url,
+            'storageBucket': firebase_storage_bucket
+        })
+        USE_FIREBASE = True
+    except Exception as e:
+        print(f"Firebase initialization failed: {e}")
+
 ALLOWED_EXTENSIONS = {"mp3", "wav", "ogg", "m4a", "flac"}
 ADMIN_PASSWORD = "admin123"
 
@@ -23,12 +43,25 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def load_submissions():
+    if USE_FIREBASE:
+        try:
+            data = db.reference("submissions").get()
+            return data if data else []
+        except Exception as e:
+            print(f"Error reading from Firebase: {e}")
+            return []
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
             return json.load(f)
     return []
 
 def save_submissions(data):
+    if USE_FIREBASE:
+        try:
+            db.reference("submissions").set(data)
+            return
+        except Exception as e:
+            print(f"Error writing to Firebase: {e}")
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=2)
 
@@ -52,11 +85,23 @@ def submit():
 
     music_file = request.files.get("music_file")
     music_filename = None
+    music_url = None
     if music_file and music_file.filename:
         if allowed_file(music_file.filename):
             ext = music_file.filename.rsplit(".", 1)[1].lower()
             music_filename = f"{uuid.uuid4().hex}.{ext}"
-            music_file.save(os.path.join(UPLOAD_FOLDER, music_filename))
+            if USE_FIREBASE:
+                try:
+                    bucket = storage.bucket()
+                    blob = bucket.blob(f"uploads/{music_filename}")
+                    blob.upload_from_file(music_file, content_type=music_file.content_type)
+                    blob.make_public()
+                    music_url = blob.public_url
+                except Exception as e:
+                    print(f"Firebase Storage upload failed: {e}")
+                    return jsonify({"success": False, "message": "File upload to cloud failed!"}), 500
+            else:
+                music_file.save(os.path.join(UPLOAD_FOLDER, music_filename))
         else:
             return jsonify({"success": False, "message": "Only MP3, WAV, OGG, M4A files are allowed!"}), 400
 
@@ -72,6 +117,7 @@ def submit():
         "category": category,
         "description": description,
         "music_file": music_filename,
+        "music_url": music_url,
         "submitted_at": datetime.now().strftime("%d %b %Y, %I:%M %p"),
         "status": "Pending"
     }
@@ -155,9 +201,17 @@ def delete_submission():
     submissions = load_submissions()
     to_delete = next((s for s in submissions if s["id"] == data["id"]), None)
     if to_delete and to_delete.get("music_file"):
-        fpath = os.path.join(UPLOAD_FOLDER, to_delete["music_file"])
-        if os.path.exists(fpath):
-            os.remove(fpath)
+        if USE_FIREBASE:
+            try:
+                bucket = storage.bucket()
+                blob = bucket.blob(f"uploads/{to_delete['music_file']}")
+                blob.delete()
+            except Exception as e:
+                print(f"Error deleting from Firebase Storage: {e}")
+        else:
+            fpath = os.path.join(UPLOAD_FOLDER, to_delete["music_file"])
+            if os.path.exists(fpath):
+                os.remove(fpath)
     submissions = [s for s in submissions if s["id"] != data["id"]]
     save_submissions(submissions)
     return jsonify({"success": True})
